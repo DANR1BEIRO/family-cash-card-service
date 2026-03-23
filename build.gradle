@@ -38,3 +38,16 @@ test {
 		showStandardStreams = false
 	}
 }
+
+springBoot {
+	buildInfo()
+}
+
+processResources {
+	filesMatching("**/application.properties") {
+		expand(project.properties)
+	}
+	filesMatching("**/banner.txt") {
+		duplicatesStrategy = DuplicatesStrategy.INCLUDE
+	}
+}
