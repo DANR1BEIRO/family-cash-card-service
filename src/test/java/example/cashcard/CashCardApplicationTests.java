@@ -10,7 +10,15 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.net.URI;
+
 import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+Let's refer to the official Request for Comments for HTTP Semantics and Content (RFC 9110)
+ for guidance as to how our API should behave.Let's refer to the official Request for Comments
+ for HTTP Semantics and Content (RFC 9110) for guidance as to how our API should behave.
+ */
 
 // start our Spring Boot application and make it available for our test to perform requests to it.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -28,7 +36,7 @@ class CashCardApplicationTests {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        // CConverts the response string into a json-aware object with lots of helped methods
+        // Converts the response string into a json-aware object with lots of helped methods
         DocumentContext documentContext = JsonPath.parse(response.getBody());
         Number id = documentContext.read("$.id");
         assertThat(id).isEqualTo(99);
@@ -46,5 +54,32 @@ class CashCardApplicationTests {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(response.getBody()).isBlank();
+    }
+
+    /**
+     * If one or more resources has been created on the origin server as a result of successfully
+     * processing a POST request, the origin server SHOULD send a 201 (Created) response containing a
+     * Location header field that provides an identifier for the primary resource created
+     * and a representation that describes the status of the request while referring to the new resource(s).
+     */
+    @Test
+    @DisplayName("Should create a new cash card")
+    void shouldCreateANewCashCard() {
+        CashCard newCashCard = new CashCard(null, 250.00);
+        ResponseEntity<Void> createResponse = restTemplate.postForEntity("/cashcards", newCashCard, Void.class);
+
+        assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+
+        URI locationOfNewCashCard = createResponse.getHeaders().getLocation();
+
+        ResponseEntity<String> getResponse = restTemplate.getForEntity(locationOfNewCashCard, String.class);
+        assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
+        Number id = documentContext.read("$.id");
+        Double amount = documentContext.read("$.amount");
+
+        assertThat(id).isNotNull();
+        assertThat(amount).isEqualTo(250.00);
     }
 }
