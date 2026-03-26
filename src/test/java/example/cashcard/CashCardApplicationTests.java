@@ -2,6 +2,7 @@ package example.cashcard;
 
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import net.minidev.json.JSONArray;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,15 +10,17 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.net.URI;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
-Let's refer to the official Request for Comments for HTTP Semantics and Content (RFC 9110)
- for guidance as to how our API should behave.Let's refer to the official Request for Comments
- for HTTP Semantics and Content (RFC 9110) for guidance as to how our API should behave.
+ * Let's refer to the official Request for Comments for HTTP Semantics and Content (RFC 9110)
+ * for guidance as to how our API should behave.Let's refer to the official Request for Comments
+ * for HTTP Semantics and Content (RFC 9110) for guidance as to how our API should behave.
  */
 
 // start our Spring Boot application and make it available for our test to perform requests to it.
@@ -56,6 +59,26 @@ class CashCardApplicationTests {
         assertThat(response.getBody()).isBlank();
     }
 
+    @Test
+    @DisplayName("Should return all cash cards when List is requested")
+    void shouldReturnAllCashCardsWhenListIsRequested() {
+        ResponseEntity<String> response = restTemplate.getForEntity("/cashcards", String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        DocumentContext documentContext = JsonPath.parse(response.getBody());
+        // calculate the length of the array
+        int cashCardCount = documentContext.read("$.length()");
+        assertThat(cashCardCount).isEqualTo(3);
+
+        // retrieves the list of all `id` values returned
+        List<Integer> ids = documentContext.read("$..id");
+        assertThat(ids).containsExactlyInAnyOrder(99, 100, 101);
+
+        // retrieves the list of all `amount` values returned
+        List<Double> amounts = documentContext.read("$..amount");
+        assertThat(amounts).containsExactlyInAnyOrder(123.45, 150.00, 1.00);
+    }
+
     /**
      * If one or more resources has been created on the origin server as a result of successfully
      * processing a POST request, the origin server SHOULD send a 201 (Created) response containing a
@@ -63,6 +86,7 @@ class CashCardApplicationTests {
      * and a representation that describes the status of the request while referring to the new resource(s).
      */
     @Test
+    @DirtiesContext
     @DisplayName("Should create a new cash card")
     void shouldCreateANewCashCard() {
         CashCard newCashCard = new CashCard(null, 250.00);
@@ -81,5 +105,15 @@ class CashCardApplicationTests {
 
         assertThat(id).isNotNull();
         assertThat(amount).isEqualTo(250.00);
+    }
+
+    @Test
+    void shouldReturnAPageOfCashCards() {
+        ResponseEntity<String> response = restTemplate.getForEntity("/cashcards?page=0&size=1", String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        DocumentContext documentContext = JsonPath.parse(response.getBody());
+        JSONArray page = documentContext.read("$[*]");
+        assertThat(page.size()).isEqualTo(1);
     }
 }
