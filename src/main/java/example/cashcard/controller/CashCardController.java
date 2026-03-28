@@ -2,7 +2,6 @@ package example.cashcard.controller;
 
 import example.cashcard.CashCard;
 import example.cashcard.repository.CashCardRepository;
-import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -45,7 +44,8 @@ public class CashCardController {
         Page<CashCard> page = cashCardRepository.findAll(
                 PageRequest.of(
                         pageable.getPageNumber(),
-                        pageable.getPageSize()
+                        pageable.getPageSize(),
+                        pageable.getSort()
                 ));
         return ResponseEntity.ok(page.getContent());
     }

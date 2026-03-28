@@ -108,6 +108,7 @@ class CashCardApplicationTests {
     }
 
     @Test
+    @DisplayName("Should return a page of cash cards")
     void shouldReturnAPageOfCashCards() {
         ResponseEntity<String> response = restTemplate.getForEntity("/cashcards?page=0&size=1", String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -115,5 +116,20 @@ class CashCardApplicationTests {
         DocumentContext documentContext = JsonPath.parse(response.getBody());
         JSONArray page = documentContext.read("$[*]");
         assertThat(page.size()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("Should return a list of cash card in a descending order")
+    void shouldReturnAListOfCashCardInADescendingOrder() {
+
+        ResponseEntity<String> response = restTemplate.getForEntity("/cashcards?page=0&size=1&sort=amount,desc", String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        DocumentContext documentContext = JsonPath.parse(response.getBody());
+        JSONArray read = documentContext.read("$[*]");
+        assertThat(read.size()).isEqualTo(1);
+
+        Double amount = documentContext.read("$[0].amount");
+        assertThat(amount).isEqualTo(150.00);
     }
 }
