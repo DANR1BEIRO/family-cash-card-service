@@ -161,4 +161,13 @@ class CashCardApplicationTests {
         JSONArray amounts = documentContext.read("$..amount");
         assertThat(amounts).containsExactly(1.00, 123.45, 150.00);
     }
+
+    @Test
+    @DisplayName("Should reject user who are not card owner")
+    void shouldRejectUserWhoAreNotCardOwner() {
+        ResponseEntity<String> response = restTemplate
+                .withBasicAuth("vegeta", "123")
+                .getForEntity("/cashcards/99", String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    }
 }

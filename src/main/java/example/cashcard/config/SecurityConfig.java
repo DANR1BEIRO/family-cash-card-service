@@ -18,6 +18,10 @@ import org.springframework.security.web.SecurityFilterChain;
  */
 @Configuration
 class SecurityConfig {
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     /**
      * Spring Security expects a Bean to configure its Filter Chain.
@@ -35,20 +39,17 @@ class SecurityConfig {
          */
         http.authorizeHttpRequests(request -> request
                         .requestMatchers("/cashcards/**")
-                        .authenticated())
+                        .hasRole("CARD-OWNER"))
                 .httpBasic(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable());
         return http.build();
     }
 
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 
     /**
      * Spring's IoC container will find the {@link UserDetailsService}
      * Bean and Spring Data will use it when needed.
+     *
      * @param passwordEncoder
      * @return
      */
@@ -58,8 +59,13 @@ class SecurityConfig {
         UserDetails goku = users
                 .username("goku")
                 .password(passwordEncoder.encode("123"))
-                .roles()
+                .roles("CARD-OWNER")
                 .build();
-        return new InMemoryUserDetailsManager(goku);
+        UserDetails vegeta = users
+                .username("vegeta")
+                .roles("NON-OWNER")
+                .password(passwordEncoder.encode("123"))
+                .build();
+        return new InMemoryUserDetailsManager(goku, vegeta);
     }
 }
