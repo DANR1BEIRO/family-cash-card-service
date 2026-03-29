@@ -32,11 +32,11 @@ test {
     testLogging {
         events "passed", "skipped", "failed"
 
+        exceptionFormat "short"
         showExceptions true
-        exceptionFormat "full"
-        showCauses true
+        showCauses false
         showStackTraces false
-        showStandardStreams = true
+        //showStandardStreams false
     }
 }
 
