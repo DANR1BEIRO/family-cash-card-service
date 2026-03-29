@@ -19,6 +19,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
     implementation 'org.springframework.data:spring-data-jdbc'
     implementation 'com.h2database:h2'
     implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -32,11 +33,13 @@ test {
     testLogging {
         events "passed", "skipped", "failed"
 
-        exceptionFormat "short"
         showExceptions true
-        showCauses false
-        showStackTraces false
-        //showStandardStreams false
+        exceptionFormat "full"
+        showCauses true
+        showStackTraces true
+
+        // Change to `true` for more verbose test output
+        showStandardStreams = false
     }
 }
 

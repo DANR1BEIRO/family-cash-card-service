@@ -1,6 +1,6 @@
 package example.cashcard.controller;
 
-import example.cashcard.CashCard;
+import example.cashcard.model.CashCard;
 import example.cashcard.repository.CashCardRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

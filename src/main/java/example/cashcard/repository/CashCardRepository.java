@@ -1,6 +1,6 @@
 package example.cashcard.repository;
 
-import example.cashcard.CashCard;
+import example.cashcard.model.CashCard;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
