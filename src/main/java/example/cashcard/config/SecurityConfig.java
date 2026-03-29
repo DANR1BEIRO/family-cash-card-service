@@ -4,8 +4,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
@@ -40,5 +44,22 @@ class SecurityConfig {
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    /**
+     * Spring's IoC container will find the {@link UserDetailsService}
+     * Bean and Spring Data will use it when needed.
+     * @param passwordEncoder
+     * @return
+     */
+    @Bean
+    UserDetailsService testOnlyUsers(PasswordEncoder passwordEncoder) {
+        User.UserBuilder users = User.builder();
+        UserDetails goku = users
+                .username("goku")
+                .password(passwordEncoder.encode("123"))
+                .roles()
+                .build();
+        return new InMemoryUserDetailsManager(goku);
     }
 }
