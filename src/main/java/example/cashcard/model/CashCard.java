@@ -1,6 +1,7 @@
-package example.cashcard;
+package example.cashcard.model;
 
 import org.springframework.data.annotation.Id;
 
-public record CashCard(@Id Long id, Double amount) {
+
+public record CashCard(@Id Long id, Double amount, String owner) {
 }
