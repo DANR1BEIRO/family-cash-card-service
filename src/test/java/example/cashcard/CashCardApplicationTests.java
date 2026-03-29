@@ -170,4 +170,13 @@ class CashCardApplicationTests {
                 .getForEntity("/cashcards/99", String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
+
+    @Test
+    @DisplayName("Should not allow access to cash card they don't own")
+    void shouldNotAllowAccessToCashCardTheyDontOwn() {
+        ResponseEntity<String> response = restTemplate
+                .withBasicAuth("goku", "123")
+                .getForEntity("/cashcards/102", String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
 }
